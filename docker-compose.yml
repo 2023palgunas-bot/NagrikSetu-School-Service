@@ -1,0 +1,23 @@
+
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: nagriksetu-backend
+    ports:
+      - "8001:8000"
+    environment:
+      DATABASE_PATH: /app/data/nagriksetu.db
+    volumes:
+      - ./backend/data:/app/data
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: nagriksetu-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
