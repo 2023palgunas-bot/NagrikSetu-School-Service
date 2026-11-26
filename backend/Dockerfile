@@ -1,3 +1,4 @@
+
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -9,8 +10,8 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application modules
-COPY *.py ./
+# Copy the backend application, including required packages.
+COPY . .
 
 RUN mkdir -p /app/data/uploads/admissions
 

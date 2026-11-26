@@ -2,6 +2,7 @@
 
 **Unified Karnataka State Educational Gateway, Admissions Lifecycle & Institutional Governance Platform**
 
+[![CI](https://github.com/2023palgunas-bot/NagrikSetu-School-Service/actions/workflows/ci.yml/badge.svg)](https://github.com/2023palgunas-bot/NagrikSetu-School-Service/actions/workflows/ci.yml)
 [![Docker Compose](https://img.shields.io/badge/Docker%20Compose-Ready-blue.svg)](docker-compose.yml)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
 [![SQLite](https://img.shields.io/badge/Database-SQLite-003B57.svg)](https://www.sqlite.org/)
@@ -196,7 +197,50 @@ python backend/test_platform_admin_two_responsibilities_suite.py
 
 ---
 
-## 9. License & Attribution
+## 9. Continuous Integration & Continuous Deployment (CI/CD) Pipeline
+
+Automated continuous integration and deployment are orchestrated via **GitHub Actions** located at [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+
+### Workflow Triggers & Execution Flow
+- **Triggers:** Automatically runs on every `push` to `master` and on `pull_request` targeting `master`.
+- **Security:** Global workflow defaults to read-only permissions (`permissions: contents: read`). No production secrets, external credentials, or environment variables are printed or exposed.
+- **Stage Progression:** Docker container publishing to GHCR is strictly gated: both Backend CI and Frontend CI must pass completely before deployment is triggered. Deployment runs exclusively on pushes to `master` and never on pull requests.
+
+### Pipeline Architecture
+1. **Backend CI (`backend-ci`):**
+   - **Environment:** Ubuntu runner, Python 3.11.
+   - **Caching:** Dependency wheel caching via `actions/setup-python` linked to `backend/requirements.txt`.
+   - **Compilation:** Compiles all backend application modules (`python -m compileall backend`) to catch syntax and import defects.
+   - **Isolated Verification:** Executes [`backend/test_ci_isolated_suite.py`](backend/test_ci_isolated_suite.py) inside a disposable temporary SQLite database.
+   - **Coverage:** Core schema creation, foreign key enforcement (`PRAGMA foreign_keys = ON`), seed data compatibility, Argon2 password hashing, JWT token lifecycle, AI question normalization, sliding-window authentication rate limiting, and full OpenAPI schema validation.
+2. **Frontend CI (`frontend-ci`):**
+   - **Environment:** Ubuntu runner, Node.js 22.
+   - **Caching:** npm cache via `actions/setup-node` linked to `frontend/package-lock.json`.
+   - **Reproducible Install:** Runs `npm ci` ensuring exact lockfile parity.
+   - **Production Build:** Runs `npm run build` with Vite 8 to verify React 19 components, routing, and assets bundle cleanly.
+3. **Continuous Deployment to GHCR (`docker-publish`):**
+   - **Condition:** `github.event_name == 'push' && github.ref == 'refs/heads/master'`
+   - **Permissions:** Scoped to `packages: write` and `contents: read` using `GITHUB_TOKEN`.
+   - **Backend Image:** `ghcr.io/2023palgunas-bot/nagriksetu-school-backend:latest` and `:${{ github.sha }}`
+   - **Frontend Image:** `ghcr.io/2023palgunas-bot/nagriksetu-school-frontend:latest` and `:${{ github.sha }}`
+   - **Layer Caching:** Utilizes GitHub Actions cache (`type=gha`) for fast, incremental layer builds.
+
+### Required GitHub Repository Permissions
+To enable publishing to GitHub Container Registry (GHCR):
+1. Navigate to the GitHub repository: **Settings** -> **Actions** -> **General**.
+2. Scroll to **Workflow permissions**.
+3. Select **Read and write permissions** (or ensure `GITHUB_TOKEN` is authorized to write packages).
+4. Save settings.
+
+### Monitoring CI/CD Results
+To view workflow runs, test execution logs, and build artifacts:
+1. Open the repository: [https://github.com/2023palgunas-bot/NagrikSetu-School-Service](https://github.com/2023palgunas-bot/NagrikSetu-School-Service)
+2. Click the **Actions** tab to inspect live pipeline summaries and container publish logs.
+3. Published container images are accessible under the repository's **Packages** tab.
+
+---
+
+## 10. License & Attribution
 
 Developed for the **Government of Karnataka – Department of School Education and Literacy**.
 Proprietary & Confidential demonstration system. All demo student datasets are synthetic.

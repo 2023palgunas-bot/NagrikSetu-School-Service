@@ -101,6 +101,7 @@ deploy/scripts/
 
 # Backend tests: ignore disposable scratch tests, whitelist verified test suites
 backend/test_*.py
+!backend/test_ci_isolated_suite.py
 !backend/test_admission_payment_enrolment_suite.py
 !backend/test_parent_registered_contact_otp_linking.py
 !backend/test_platform_admin_two_responsibilities_suite.py

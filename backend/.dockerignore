@@ -1,7 +1,56 @@
-
-venv/
+# Python bytecode & environments
 __pycache__/
-*.pyc
-nagriksetu.db
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.pytest_cache/
+.mypy_cache/
+
+# Databases & data directories (NEVER bake into image)
+*.db
+*.db*
+*.sqlite
+*.sqlite3
+*.sqlite*
 data/
+nagriksetu.db
+C*
+
+# Environment secrets and credentials (NEVER bake into image)
 .env
+.env.*
+*.env
+*.pem
+*.key
+
+# Backups & archives
+*.bak
+*.bak*
+*.backup
+*.backup*
+*.old
+*.from_image
+
+# Datasets & spreadsheets
+*.csv
+*.xlsx
+*.xls
+
+# Temporary inspection & scratch scripts
+scratch/
+scripts/
+inspect_*.py
+patch_*.py
+check_*.py
+verify_*.py
+deep_*.py
+test_*.py
+!test_ci_isolated_suite.py
+
+# Git & OS metadata
+.git/
+.gitignore
+.DS_Store
+Thumbs.db
